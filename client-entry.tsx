@@ -14,16 +14,22 @@ declare const growiFacade : {
 };
 
 const addPlugin = (options: any) => {
-  const { a } = options.components;
-  options.components.a = helloGROWI(a); // Wrap the default component
+  const { code } = options.components;
+  options.components.code = helloGROWI(code); // Wrap the default component
   options.remarkPlugins.push(remarkPlugin as any);
   return options;
 };
+
+const script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = 'https://cdn.form.io/js/formio.embed.js';
+document.head.appendChild(script);
 
 const activate = (): void => {
   if (growiFacade == null || growiFacade.markdownRenderer == null) {
     return;
   }
+
   const { optionsGenerators } = growiFacade.markdownRenderer;
   const originalCustomViewOptions = optionsGenerators.customGenerateViewOptions;
   optionsGenerators.customGenerateViewOptions = (...args) => {

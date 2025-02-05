@@ -1,80 +1,45 @@
-# GROIW Plugin template for script with Stencil
+# GROIW Form Plugin
 
-This is a template for creating a GROWI script plugin with Stencil.
+This is a GROWI script plugin for generating form on GROWI page.
 
 ## Usage
 
-### Download or folk this repository.
-
-```bash
-git clone git@github.com:goofmint/growi-plugin-script-template.git
-```
-
-### Change the name of the plugin in package.json.
-
-```js
+```markdown
+:::form[contact]{}
 {
-  "name": "growi-plugin-script-template",  // Change this name
-  "version": "1.0.0",
-  "description": "GROWI plugin template for script", // Change this description
-	:
+    "display": "form",
+    "settings": {
+        "pdf": {
+            "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
+            "src": "https://files.form.io/pdf/5692b91fd1028f01000407e3/file/1ec0f8ee-6685-5d98-a847-26f67b67d6f0"
+        }
+    },
+    "components": [
+        {
+            "label": "Text Field",
+            "applyMaskOn": "change",
+            "tableView": true,
+            "validateWhenHidden": false,
+            "key": "textField",
+            "type": "textfield",
+            "input": true
+        }
+    ]
 }
+:::
 ```
 
-### Edit those files
+You can use those parameters.
 
-Of course, you can add or remove files as you like.
+| Parameter | Description                                 |
+| --------- | ------------------------------------------- |
+| path      | Path for saving input data                  |
+| role      | The role can see the input data             |
+| message   | Showing this message when submited the form |
 
-- client-entry.tsx
-- src/Hello.tsx
-- src/Hello.css
-- src/Demo.tsx
-
-#### Stencil components
-
-You will edit or add Stencil components in `src/` directory.
-
-- growi-component/src/*
-
-You can use dev server when you develop the plugin.
-
-```bash
-pnpm run start
+```markdown
+::::form[contact]{path=/path/to/save role=admin message="Thank you for your submission."}
 ```
-
-After developing, you can build the plugin.
-
-```bash
-pnpm run build
-```
-
-### Load Stencil components in the plugin
-
-You need to load the Stencil components in the plugin like below.
-
-```tsx
-import '../growi-component/dist/components/growi-component';
-```
-
-### Preview the plugin
-
-```bash
-yarn dev
-```
-
-### Build the plugin
-
-```bash
-yarn build
-```
-
-## Publish the plugin at GROWI
-
-Add a topic `growi-plugin` on your GitHub repository.
-
-Then, you can see your plugin on the GROWI plugin list page below.
-
-https://growi.org/plugins
 
 ## License
 

@@ -1,14 +1,18 @@
 import { h, Properties } from 'hastscript';
+import { directiveToMarkdown } from 'mdast-util-directive';
+import { toMarkdown } from 'mdast-util-to-markdown';
 import type { Plugin } from 'unified';
 import { Node } from 'unist';
 import { visit } from 'unist-util-visit';
 
-import '../growi-component/dist/components/growi-component';
+import '../growi-form/dist/components/growi-form';
+// import './formio.embed';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      'growi-component': any;
+      'growi-form': any;
     }
   }
 }
@@ -16,14 +20,28 @@ declare global {
 export const helloGROWI = (Tag: React.FunctionComponent<any>): React.FunctionComponent<any> => {
   return ({ children, ...props }) => {
     try {
-      const { stencil, params1, params2 } = JSON.parse(props.title || '{}');
-      if (stencil) {
+      if (props.className === 'language-form') {
+        const {
+          submit, path, role, message,
+        } = (props.title && props.title !== '')
+          ? JSON.parse(props.title)
+          : {
+            submit: 'Submit', path: '', role: '', message: '',
+          };
         return (
-          <growi-component
-            name={children}
-            params-1={params1}
-            params-2={params2}>
-          </growi-component>
+          <>
+            <growi-form
+              code={children}
+              path={path}
+              submit={submit}
+              role={role}
+              message={message}
+              saved={(e: string) => {
+                console.log({ e });
+              }}
+            >
+            </growi-form>
+          </>
         );
       }
       // your code here
@@ -55,7 +73,6 @@ interface GrowiNode extends Node {
   url?: string;
 }
 
-
 export const remarkPlugin: Plugin = () => {
   return (tree: Node) => {
     // You can use 2nd argument for specific node type
@@ -63,19 +80,24 @@ export const remarkPlugin: Plugin = () => {
     // :plugin[xxx]{hello=growi} -> textDirective
     // ::plugin[xxx]{hello=growi} -> leafDirective
     // :::plugin[xxx]{hello=growi} -> containerDirective
-    visit(tree, (node: Node) => {
+    visit(tree, 'containerDirective', (node: Node) => {
       const n = node as unknown as GrowiNode;
-      if (n.name !== 'plugin') return;
+      if (n.name !== 'form') return;
+      const id = (n.children[0] as GrowiNode).children[0].value;
+      const value = (n.children[1] as GrowiNode).children.map(ele => ele.value).join('');
       const data = n.data || (n.data = {});
       // Render your component
-      const { value } = n.children[0];
-      data.hName = 'a'; // Tag name
-      data.hChildren = [{ type: 'text', value }]; // Children
-      // Set properties
-      data.hProperties = {
-        href: 'https://example.com/',
-        title: JSON.stringify({ ...n.attributes, ...{ stencil: true } }), // Pass to attributes to the component
-      };
+      try {
+        JSON.parse(value);
+        data.hName = 'code'; // Tag name
+        data.hProperties = { id, class: 'language-form', title: JSON.stringify(n.attributes) }; // Properties
+        data.hChildren = [{ type: 'text', value }]; // Children
+      }
+      catch (err) {
+        console.log(err);
+        // console.error(err);
+        return;
+      }
     });
   };
 };
